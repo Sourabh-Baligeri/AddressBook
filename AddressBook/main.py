@@ -82,20 +82,17 @@ def get_coordinates(lat: float, lng: float, db : Session = Depends(get_db)):
 # Get the Coordinates with near usingg Radious
 @app.get('/addresses/{lat}/{lng}/{radius}')
 def get_address_by_coordinates(lat: float, lng: float, radius: float,db : Session = Depends(get_db)):
-    print("Record",lat,lng)
     radi = 6371
     dblat = db.query(models.Address).all()
-    for a in dblat:
-        # print("ALL:",a.lat, a.lng)
-        
-        dlat = math.radians(lat - float(a.lat))
-        dlon = math.radians(lng - float(a.lng))
-        a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(float(a.lat))) \
-            * math.cos(math.radians(float(a.lat))) * math.sin(dlon/2) * math.sin(dlon/2)
+    b =[]
+    for n in dblat:
+        dlat = math.radians(float(n.lat) - lat)
+        dlon = math.radians(float(n.lng) - lng)
+        a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat)) \
+            * math.cos(math.radians(float(n.lat))) * math.sin(dlon/2) * math.sin(dlon/2)
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-        d = radi * c        
+        d = radi * c
         if d <= radius:
-            return d
-        else:
-            return "No Records Found, Please Try Again"
-    return d
+            b.append(n.city)
+            b.append(d)
+    return b
